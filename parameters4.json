@@ -1,0 +1,18 @@
+{
+	"PreFilterSize": 41,
+	"PreFilterCap": 31,
+	"BlockSize": 41,
+	"MinDisparity": -64,
+	"NumDisparity": 128,
+	"TextureThreshold": 10,
+	"UniquenessRatio": 15,
+	"SpeckleWindowSize": 0,
+	"SpeckleRange": 0,
+	"Disp12MaxDiff": -1,
+	"ImageFileName": "stereoLady.jpg",
+	"Default": 0,
+	"SBMChoice": 0,
+//	"DoubleImage": 1,
+	"LeftImageFileName": "im0.png",
+	"RightImageFileName": "im1.png"
+}
