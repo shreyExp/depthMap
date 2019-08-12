@@ -150,33 +150,5 @@ int main(int argc, char**argv){
 		if(waitKey(1000) == 27) break;
 	}
 	destroyWindow("Example");
-	plstream *pls = new plstream();
-	pls->init();
-	PLFLT **z;
-	pls->Alloc2dGrid(&z, depth.cols, depth.rows);
-	PLFLT *x, *y;
-	x = new PLFLT[depth.cols];
-	y = new PLFLT[depth.rows];
-	for(int i = 0; i < depth.cols; i++)
-		x[i] = i;
-	for(int i = 0; i < depth.rows; i++)
-		y[i] = i;
-	for(int i = 0; i < depth.rows; i++){
-		p = depth.ptr<float>(i);
-		for(int j = 0; j < depth.cols; j++){
-			z[i][j] = p[j];
-		}
-	}
-	const PLFLT alt[] = { 33.0, 17.0 };
-	const PLFLT az[] = { 24.0, 115.0 };
-	pls->adv( 0 );
-        pls->col0( 1 );
-        pls->vpor( 0.0, 1.0, 0.0, 0.9 );
-	pls->wind( -1.0, 1.0, -1.0, 1.5 );
-	pls->w3d( 1.0, 1.0, 1.2, -3.0, 3.0, -3.0, 3.0, min, max, alt[0], az[0] );
-	pls->box3( "bnstu", "x axis", 0.0, 0, "bnstu", "y axis", 0.0, 0, "bcdmnstuv", "z axis", 0.0, 4 );
-	pls->col0( 2 );
-	pls->mesh(x, y, z, depth.cols, depth.rows, 3.0);
-	//pls->mesh(x, y, z, depth.cols, depth.rows, opt[k]);
 	return 0;
 }
