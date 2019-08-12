@@ -8,6 +8,9 @@
 #include "helper.h"
 #include "getParams.h"
 #include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 using namespace cv;
 using namespace std;
 template <class T>
@@ -40,6 +43,8 @@ int main(int argc, char**argv){
 		im2 = img(r1);
 	}
 
+//	double *hhh, *bbb;
+//	histogram<uchar>(im1, hhh, bbb, 100);
 	Mat disp;
 	if(!para.getSBMChoice()){
 		Ptr<StereoBM> sbm = StereoBM::create(16,21);
@@ -83,32 +88,36 @@ int main(int argc, char**argv){
 	double *hist;
 	double *bins;
 
-	bool histFlag = 0;
+	bool histFlag = 1;
 	if(histFlag)
-		histo<short>(disp,hist,bins);
+		histogram<short>(disp,hist,bins, 100);
 
 	Mat depth;
 	float* p;
 	//float baselineF = 22500;
 	float baselineF;
 	if(para.getBaselineFocus())
-		baselineF = para.getBaselineFocus()/im1.rows;
+		baselineF = para.getBaselineFocus();
 	else
 		baselineF = 22500;
-
+	cout<<"Base line is"<<baselineF<<endl;
 	disp.convertTo(depth, CV_32FC1);
 	for(int i = 0; i < depth.rows; i++){
 		p = depth.ptr<float>(i);
 		for(int j = 0; j < depth.cols; j++){
 			if(p[j] < 0.000001 && p[j] > -0.000001)
-				p[j] = 0;
-			else
-				p[j] = baselineF/p[j];
+				p[j] =10000;
+			p[j] = baselineF/p[j];
 
 		}
 	}
 	float min, max;
 	minmax<float>(depth, min, max);
+	double *hh;
+	double *bb;
+	shiftAboveZero<float>(depth);
+	minmax<float>(depth, min, max);
+	histogram<float>(depth, hh, bb, 1000);
 	cout<<"Minimum value of depth is "<<min<<" Maximum value of depth is "<<max<<endl;
 	cout<<"The size of depth is "<<depth.size()<<endl;
 	cout<<"The type of depth is "<<depth.type()<<endl;
@@ -120,9 +129,15 @@ int main(int argc, char**argv){
 //	Mat depthLowP;
 //	medFilter(depth8U, depthLowP, 11);
 	//cout<<depth8U<<endl;
-	
-	imwrite("Depth.jpg", depth8U);
-	imwrite("Original.jpg", im2);
+	string out = para.getOutput();
+	char cstr[out.size()];
+	out.copy(cstr, out.size()+1);
+	cstr[out.size()] = '\0';
+	auto chh = mkdir(cstr, 0777);
+	cout<<"out put of mkdir id "<<chh<<endl;
+	cout<<"c string is"<<out.c_str()<<endl;
+	imwrite(out + "/Depth.jpg", depth8U);
+	imwrite(out + "/Original.jpg", im2);
 	namedWindow("Example");
 	while(1){
 		imshow("Example", depth8U);

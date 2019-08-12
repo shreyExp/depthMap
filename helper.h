@@ -6,14 +6,24 @@
 #include <plplot/plplot.h>
 using namespace cv;
 using namespace std;
+
+template <class T>
+void histogram(Mat &img, double *&hist, double* &bins, int noOfBins);
+
 template <class T>
 void shiftAboveZero(Mat &img);
+
 template <class T>
 void minmax(Mat& img, T &min, T &max);
+
 template <class T>
 void threshold(Mat &img, T lower, T upper, T value);
+
 template <class T>
 void histo(Mat &img, double * &hist, double * &bins);
+
+
+
 template <class T>
 void threshold(Mat &img, T lower, T upper, T value){
 	T* p;
@@ -21,11 +31,8 @@ void threshold(Mat &img, T lower, T upper, T value){
 	for(int i = 0; i < img.rows; i++){
 		p = img.ptr<T>(i);
 		for(int j = 0; j < img.cols; j++){
-			if(*(p+j) < lower)
-				*(p+j) = value;
-			if(*(p+j) > upper)
-				*(p+j) = value;
-			
+			if((p[j]  > lower) && (p[j] < upper))
+				p[j] = value;
 		}
 	}
 }
@@ -114,4 +121,53 @@ void shiftAboveZero(Mat &img){
 			p[j] = p[j] - min;
 		}
 	}
+}
+
+template <class T>
+void histogram(Mat &img, double *&hist, double *&bins, int noOfBins){
+	T* p;
+	T val;
+	T min, max;
+	minmax(img, min, max);
+	hist = new double[noOfBins];
+	bins = new double[noOfBins];
+	const T step = (max-min)/noOfBins;
+	bins[0] = min;
+	hist[0] = 0;
+	for(int k = 1; k < noOfBins; k++){
+		bins[k] = bins[k-1] + step;
+		hist[k] = 0;
+	}
+	for(int i = 0; i < img.rows; i++){
+		p = img.ptr<T>(i);
+		for(int j = 0; j < img.cols; j++){
+			val = p[j];
+			for(int q = 0; q < noOfBins; q++){
+				if((q+1) != noOfBins){
+					if(val >= bins[q] && val < bins[q+1]){
+						hist[q]++;
+						break;
+					}
+				}else{
+					hist[q]++;
+				}
+			}
+		}
+	}	
+	double fmin = hist[0];
+	double fmax = hist[0];
+	for(int i = 0; i < noOfBins; i++)
+		//cout<<"h["<<i<<"]"<<" = "<<hist[i]<<endl;
+	for(int i = 0; i < noOfBins; i++){
+		if (fmin > hist[i])
+			fmin = hist[i];
+		if(fmax < hist[i])
+			fmax = hist[i];
+	}
+	plstream *pls = new plstream();
+	pls->init();
+	pls->env(min, max, fmin, fmax, 0, 0);
+	pls->lab("Value", "Frequency","Histogram" );
+	pls->line(noOfBins, bins, hist);
+	delete pls;
 }

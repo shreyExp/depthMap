@@ -2,6 +2,7 @@
 #include <string>
 #include <json/json.h>
 #include <iostream>
+#include <string>
 using namespace Json;
 using namespace std;
 
@@ -25,6 +26,7 @@ class GetPara{
 		string getLeftImageFileName();
 		string getRightImageFileName();
 		double getBaselineFocus();
+		string getOutput();
 	private:
 		const char *filename;
 		Value root;
@@ -87,4 +89,8 @@ bool GetPara::doubleImage(){
 }
 double GetPara::getBaselineFocus(){
 	return root["BaseLineFocus"].asDouble();
+}
+
+string GetPara::getOutput(){
+	return root["Output"].asString();
 }
